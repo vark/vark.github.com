@@ -1,0 +1,142 @@
+<html> 
+  <head> 
+    <title>Aardvark - A Sane Build Tool</title> 
+    <style TYPE="text/css">
+       <!--
+       body { font-family: Helvetica,sans-serif;
+              background: white;
+              color: #888888;
+              margin: 16px 16px 16px 16px;
+              }
+       .header {
+         width: 100%;
+         border-bottom: 1px solid;
+       }
+       .title {
+         font-size: 32pt;
+       }
+       .tagline {
+         font-size: 12pt;
+         font-style: italic;
+         padding: 16px;
+       }
+       .links {
+         height: 100%;
+         padding: 0 16px 0 0;
+         font-size: 14pt;
+         float: left;
+         border-right: 1px solid;
+       }
+       .sectionTitle {
+         font-size: 20pt;
+       }
+       .content {
+         padding-left: 240px;
+         color: black;
+         font-size: 12pt;
+       }
+       .varkfile {
+         white-space: pre;
+         font-family: Courier,monospace;
+         font-size: 10pt;
+         margin: 0;
+         padding: 8px;
+         border: 1px solid #bbbbbb;
+         background-color: #eeeeee;
+       }
+       a:link { color: #ff0000; }
+       a:visited { color: #ff8080; }
+       a:active { color: #a05050; }
+        -->
+     </style>
+  </head> 
+  <body> 
+    <div class="header"><span class="title">Aardvark</span><span class="tagline">A Sane Build Tool</span></div>
+    <div>
+      <div class="links">
+        <ul> 
+          <li>Downloads:</li> 
+          <ul> 
+            <li><a href="https://s3.amazonaws.com/Aardvark/aardvark.zip">aardvark.zip</a></li> 
+            <li><a href="https://s3.amazonaws.com/Aardvark/aardvark.tgz">aardvark.tgz</a></li> 
+          </ul> 
+          <li><a href="http://github.com/vark/Aardvark">Source</a></li> 
+          <li><a href="http://github.com/vark/Aardvark/wiki">Documentation</a></li> 
+          <li><a href="http://github.com/vark/Aardvark/wiki/why">Why</a></li> 
+          <li><a href="http://github.com/vark/Aardvark/issues">Issues</a></li> 
+          <li><a href="http://www.apache.org/licenses/LICENSE-2.0.html">License</a></li> 
+        </ul> 
+      </div>
+      <div class="content">
+        <p>Aardvark is a tool for building projects.  It is based on <a href="http://gosu-lang.org">Gosu</a> 
+        and <a href="http://ant.apache.org/">Apache Ant</a>.  It is intended to provide a comfortable scripting
+        environment while retaining all the functionality that Ant tasks provide.</p>
+        <span class="sectionTitle">build.vark</span>
+        <p>Here is an example build.vark file, which is structured just like a Gosu program, with some special sauce:</p>
+        <div class="varkfile">var srcDir = file("src")
+var classesDir = file("classes")
+var distDir = file("dist")
+
+function echoHello() {
+  Ant.echo(:message = "Hello World")
+}
+
+function compile() {
+  Ant.mkdir(:dir = classesDir)
+  Ant.javac(:srcdir = path(srcDir),
+            :destdir = classesDir,
+            :includeantruntime = false)
+}
+
+@Depends("compile")
+function jar() {
+  Ant.mkdir(:dir = distDir)
+  Ant.jar(:destfile = distDir.file("myproject.jar"),
+          :basedir = classesDir)
+}
+
+@Depends("compile")
+function run() {
+  Ant.java(:classname = "myproject.HelloWorld",
+           :classpath = path(classesDir),
+           :fork = true)
+}
+
+function clean() {
+  Ant.delete(:dir = classesDir)
+  Ant.delete(:dir = distDir)
+}</div>
+        <p>Note, in particular, the 'Ant' symbol, which exposes the entire Ant API as functions.</p>
+
+        <span class="sectionTitle">Running Aardvark</span>
+        <p>To use Aardvark, download and unzip a distribution, and put its bin/ directory on your path.</p>
+        <p>You run it exactly the same as how you run Ant. Within the directory which contains build.vark, simply run the "vark" executable followed by the desired target name:</p>
+        <div class="varkfile">$ vark jar
+Buildfile: myproject/build.vark
+
+compile:
+    [mkdir] Created dir: myproject/classes
+    [javac] Compiling 1 source file to myproject/classes
+
+jar:
+    [mkdir] Created dir: myproject/dist
+      [jar] Building jar: myproject/dist/myproject.jar
+
+BUILD SUCCESSFUL
+Total time: 0 seconds</div>
+        <p>If you'd like to use a .vark file that is in another directory and/or named other than build.vark, it is again just like Ant:</p>
+        <div class="varkfile">$ vark -f <i>other.vark</i>
+$ vark <i>path/to/build.vark</i>
+$ vark <i>path/to/other.vark</i></div>
+        <p></p>
+
+        <span class="sectionTitle">VEdit</span>
+        <p>Aardvark ships with a built in graphical editor for vark files, 'vedit'.  You can edit a vark file by using the "vedit" executable in place of "vark"</p>
+        <div class="varkfile">$ vedit
+$ vedit -f <i>other.vark</i>
+$ vedit <i>path/to/build.vark</i>
+$ vedit <i>path/to/other.vark</i></div>
+      </div>
+    </div>
+  </body> 
+</html> 
